@@ -13,6 +13,7 @@ public:
 };
 
 class JwtPartStringValue : public JwtPartValue {
+    friend JwtPart;
 private:
     std::string str;
 public:
@@ -21,6 +22,7 @@ public:
 };
 
 class JwtPartIntegerValue : public JwtPartValue {
+    friend JwtPart;
 private:
     int64_t integer;
 public:
@@ -72,4 +74,26 @@ void JwtPart::Add(const std::string &name, const std::string &value) {
 
 void JwtPart::Add(const std::string &name, int64_t integer) {
     insert_or_assign(name, std::make_shared<JwtPartIntegerValue>(integer));
+}
+
+std::string JwtPart::GetString(const std::string &name) {
+    auto iterator = find(name);
+    if (iterator != end()) {
+        auto strValue = std::dynamic_pointer_cast<JwtPartStringValue>(iterator->second);
+        if (strValue) {
+            return strValue->str;
+        }
+    }
+    return {};
+}
+
+int64_t JwtPart::GetInt(const std::string &name) {
+    auto iterator = find(name);
+    if (iterator != end()) {
+        auto intValue = std::dynamic_pointer_cast<JwtPartIntegerValue>(iterator->second);
+        if (intValue) {
+            return intValue->integer;
+        }
+    }
+    return {};
 }

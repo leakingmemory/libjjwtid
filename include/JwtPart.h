@@ -19,6 +19,8 @@ public:
     std::string ToBase64() const;
     void Add(const std::string &name, const std::string &value);
     void Add(const std::string &name, int64_t integer);
+    std::string GetString(const std::string &name);
+    int64_t GetInt(const std::string &name);
 };
 
 
