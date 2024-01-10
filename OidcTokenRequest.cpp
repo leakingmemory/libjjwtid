@@ -67,10 +67,15 @@ OidcPostRequest OidcTokenRequest::GetTokenRequest() const {
     params.insert_or_assign("client_id", clientId);
     params.insert_or_assign("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
     params.insert_or_assign("client_assertion", jwt);
-    params.insert_or_assign("grant_type", "authorization_code");
-    params.insert_or_assign("redirect_uri", redirectUri);
+    if (!code.empty()) {
+        params.insert_or_assign("grant_type", "authorization_code");
+        params.insert_or_assign("redirect_uri", redirectUri);
+        params.insert_or_assign("code", code);
+        params.insert_or_assign("code_verifier", codeVerifier);
+    } else if (!refreshToken.empty()) {
+        params.insert_or_assign("grant_type", "refresh_token");
+        params.insert_or_assign("refresh_token", refreshToken);
+    }
     params.insert_or_assign("scope", scopeStr);
-    params.insert_or_assign("code", code);
-    params.insert_or_assign("code_verifier", codeVerifier);
     return {.url = tokenEndpoint, .params = params};
 }

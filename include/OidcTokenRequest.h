@@ -23,8 +23,10 @@ private:
     std::string code;
     std::vector<std::string> scope;
     std::string codeVerifier;
+    std::string refreshToken;
 public:
-    OidcTokenRequest(const std::string &url, const std::string &clientId, const std::string &jwk, const std::string &redirectUri, const std::string &code, const std::vector<std::string> &scope, const std::string &codeVerifier) : url(url), clientId(clientId), jwk(jwk), redirectUri(redirectUri), code(code), scope(scope), codeVerifier(codeVerifier) {}
+    OidcTokenRequest(const std::string &url, const std::string &clientId, const std::string &jwk, const std::string &redirectUri, const std::string &code, const std::vector<std::string> &scope, const std::string &codeVerifier) : url(url), clientId(clientId), jwk(jwk), redirectUri(redirectUri), code(code), scope(scope), codeVerifier(codeVerifier), refreshToken() {}
+    OidcTokenRequest(const std::string &url, const std::string &clientId, const std::string &jwk, const std::vector<std::string> &scope, const std::string &refreshToken) : url(url), clientId(clientId), jwk(jwk), redirectUri(), code(), scope(scope), codeVerifier(), refreshToken(refreshToken) {}
     OidcPostRequest GetTokenRequest() const;
 };
 
