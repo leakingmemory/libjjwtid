@@ -10,6 +10,8 @@ std::string sha256::Hex() {
     return result;
 }
 
+#if (LIBJJWTID_CPPLEVEL >= 23 && LIBJJWTID_HAS_CONSTEXPRSTRING)
+
 constexpr bool Sha2Assert(const std::string &input, const std::string &expect) {
     std::string result{};
     {
@@ -43,3 +45,5 @@ constexpr uint8_t expectedResultRFC7636[32] = {19, 211, 30, 150, 26, 26, 216, 23
                                     8, 118, 168, 120, 173, 109, 241, 68, 86, 110, 225, 137, 74, 203,
                                     112, 249, 195};
 static_assert(Sha2Assert("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk", expectedResultRFC7636));
+
+#endif

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <string>
 #include <bit>
+#include "Config.h"
 
 class sha2alg {
 public:
@@ -156,7 +157,7 @@ public:
         }
     }
 protected:
-    constexpr static void Hex(std::string &str, const uint8_t data[], size_t len) {
+    LIBJJWTID_CONSTEXPR_STRING static void Hex(std::string &str, const uint8_t data[], size_t len) {
         for (size_t i = 0; i < len; i++) {
             std::string ss{"  "};
             char ch = (char) data[i];
@@ -181,7 +182,7 @@ protected:
         }
     }
 public:
-    constexpr std::string Hex() {
+    LIBJJWTID_CONSTEXPR_STRING std::string Hex() {
         uint8_t data[64];
         Result(data);
         std::string result{};
