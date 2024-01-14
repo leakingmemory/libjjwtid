@@ -16,6 +16,8 @@ std::string Base64EncoderImpl::Decode(const std::string &input) const {
     return result;
 }
 
+#if (LIBJJWTID_CPPLEVEL >= 23 && LIBJJWTID_HAS_CONSTEXPRSTRING)
+
 constexpr bool AssertBase64Encode(const std::string &expected, const std::string &input) {
     std::string result{};
     Base64Encoding encoding{};
@@ -85,3 +87,5 @@ constexpr uint8_t valuesFromRFC7636[32] = {19, 211, 30, 150, 26, 26, 216, 236, 4
                                                8, 118, 168, 120, 173, 109, 241, 68, 86, 110, 225, 137, 74, 203,
                                                112, 249, 195};
 static_assert(AssertBase64UrlEncode("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", valuesFromRFC7636, 32));
+
+#endif

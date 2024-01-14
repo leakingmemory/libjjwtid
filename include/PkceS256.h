@@ -13,8 +13,8 @@ private:
     std::string verifier;
 public:
     PkceS256();
-    constexpr explicit PkceS256(const std::string &verifier) : verifier(verifier) {};
-    constexpr explicit PkceS256(std::string &&verifier) : verifier(std::move(verifier)) {};
+    LIBJJWTID_CONSTEXPR_STRING explicit PkceS256(const std::string &verifier) : verifier(verifier) {};
+    LIBJJWTID_CONSTEXPR_STRING explicit PkceS256(std::string &&verifier) : verifier(std::move(verifier)) {};
     [[nodiscard]] constexpr bool IsValid() const {
         return Base64UrlEncoding::DecodingOutputSize(verifier.size()) == 32;
     }
@@ -26,7 +26,7 @@ public:
         base64.Encode(challenge, hash, 32);
     }
     [[nodiscard]] std::string GetChallenge() const;
-    [[nodiscard]] constexpr std::string GetVerifier() const {
+    [[nodiscard]] LIBJJWTID_CONSTEXPR_STRING std::string GetVerifier() const {
         return verifier;
     }
 };

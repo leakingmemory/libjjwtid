@@ -26,6 +26,8 @@ std::string PkceS256::GetChallenge() const {
     return result;
 }
 
+#if (LIBJJWTID_CPPLEVEL >= 23 && LIBJJWTID_HAS_CONSTEXPRSTRING)
+
 constexpr bool AssertChallenge(const std::string &expected_challenge, const std::string &verifier) {
     std::string challenge{};
     PkceS256 pkce{verifier};
@@ -34,3 +36,5 @@ constexpr bool AssertChallenge(const std::string &expected_challenge, const std:
 }
 
 static_assert(AssertChallenge("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"));
+
+#endif

@@ -7,20 +7,21 @@
 
 #include <string>
 #include <cstdint>
+#include "Config.h"
 
 template <unsigned char base> class BaseDigitEncoder {
 private:
     char digits[base];
 public:
-    constexpr BaseDigitEncoder(const char digits[base]) noexcept : digits() {
+    constexpr explicit BaseDigitEncoder(const char digits[base]) noexcept : digits() {
         for (unsigned char i =0; i < base; i++) {
             this->digits[i] = digits[i];
         }
     }
-    constexpr char Encode(int digit) const {
+    [[nodiscard]] constexpr char Encode(int digit) const {
         return digits[digit];
     }
-    constexpr int Decode(char ch) const {
+    [[nodiscard]] constexpr int Decode(char ch) const {
         for (unsigned char i = 0; i < base; i++) {
             if (digits[i] == ch) {
                 return i;
@@ -34,7 +35,7 @@ class Base64EncoderImpl {
 private:
     BaseDigitEncoder<64> digitEncoder;
 public:
-    constexpr Base64EncoderImpl(BaseDigitEncoder<64> digitEncoder) : digitEncoder(digitEncoder) {}
+    constexpr explicit Base64EncoderImpl(BaseDigitEncoder<64> digitEncoder) : digitEncoder(digitEncoder) {}
     [[nodiscard]] static constexpr size_t EncodingOutputSize(size_t inputSize) {
         auto tmp = inputSize << 3;
         auto inc = (tmp % 6) != 0 ? 1 : 0;
@@ -89,7 +90,7 @@ public:
     }
     std::string Encode(const std::string &input) const;
 
-    constexpr void Decode(std::string &result, const std::string &input) const {
+    LIBJJWTID_CONSTEXPR_STRING void Decode(std::string &result, const std::string &input) const {
         if (&input == &result) {
             std::string tmp{};
             Decode(tmp, input);
