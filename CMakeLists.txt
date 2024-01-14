@@ -43,6 +43,8 @@ install(TARGETS jjwtid
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin
 )
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cpplevel.h"
+        DESTINATION include/jjwtid)
 install(DIRECTORY include/ DESTINATION include/jjwtid)
 
 
