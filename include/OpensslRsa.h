@@ -11,12 +11,21 @@
 #include "Bignum.h"
 #include "SigningKey.h"
 #include "VerificationKey.h"
+#include "cpplevel.h"
 
+#if (OPENSSL3)
 typedef struct evp_pkey_st EVP_PKEY;
+#else
+typedef struct rsa_st RSA;
+#endif
 
 class OpensslRsa : public SigningKey, public VerificationKey {
 private:
+#ifdef OPENSSL3
     std::unique_ptr<EVP_PKEY,void (*)(EVP_PKEY *)> rsa;
+#else
+    std::unique_ptr<RSA,void (*)(RSA *)> rsa;
+#endif
 public:
     OpensslRsa();
     OpensslRsa(const OpensslRsa &) = delete;

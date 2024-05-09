@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.26)
 project(libjjwtid)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -7,6 +7,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options(-fPIC)
 
 find_package(cpprestsdk REQUIRED)
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
+    add_compile_options("-I/usr/local/include")
+endif()
 
 try_compile(CONSTEXPRSTRINGTEST "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/configtests/constexprstrtest.cpp")
 
@@ -18,8 +22,18 @@ else()
     set(CONSTEXPRSTRING "false")
 endif()
 
+try_compile(OPENSSL3TEST "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/configtests/openssl3test.cpp")
+
+if (OPENSSL3TEST)
+    message("system has openssl 3 or later")
+    set(OPENSSL3 "true")
+else()
+    message("system does not have openssl 3 or later")
+    set(OPENSSL3 "false")
+endif()
+
 add_custom_target("cpplevel.h"
-        ALL "cat" "${CMAKE_CURRENT_SOURCE_DIR}/cpplevel.h.in" | sed -e "s/xCPPLEVELx/${CPPLEVEL}/" | sed -e "s/xCONSTEXPRSTRINGx/${CONSTEXPRSTRING}/" > "${CMAKE_CURRENT_BINARY_DIR}/cpplevel.h"
+        ALL "cat" "${CMAKE_CURRENT_SOURCE_DIR}/cpplevel.h.in" | sed -e "s/xCPPLEVELx/${CPPLEVEL}/" | sed -e "s/xCONSTEXPRSTRINGx/${CONSTEXPRSTRING}/" | sed -e "s/xOPENSSL3x/${OPENSSL3}/" > "${CMAKE_CURRENT_BINARY_DIR}/cpplevel.h"
         DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cpplevel.h.in"
 )
 
@@ -51,6 +65,8 @@ install(DIRECTORY include/ DESTINATION include/jjwtid)
 enable_testing()
 
 add_executable(genrsatest GenRsaTest.cpp)
+add_dependencies(genrsatest "cpplevel.h")
+target_include_directories(genrsatest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(genrsatest PRIVATE crypto)
 target_link_libraries(genrsatest PRIVATE -lssl -lcrypto)
 

@@ -6,6 +6,7 @@
 #include <memory>
 #include <iostream>
 #include <fcntl.h>
+#include <unistd.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include <cstring>
