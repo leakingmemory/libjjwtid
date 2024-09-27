@@ -50,7 +50,7 @@ target_link_libraries(jjwtid PRIVATE crypto)
 target_link_libraries(jjwtid PRIVATE -lssl -lcrypto)
 target_link_libraries(jjwtid PRIVATE cpprestsdk::cpprest -lcrypto)
 
-set_target_properties(jjwtid PROPERTIES SOVERSION 1 VERSION 1.0.0)
+set_target_properties(jjwtid PROPERTIES SOVERSION 2 VERSION 2.0.0)
 
 install(TARGETS jjwtid
         LIBRARY DESTINATION lib
