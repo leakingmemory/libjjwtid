@@ -35,7 +35,7 @@ private:
     std::string codeVerifier;
     std::string refreshToken;
     HelseidMultiTenantInfo helseidMultiTenantInfo{};
-public
+public:
     OidcTokenRequest(const std::string &url, const std::string &clientId, const std::string &jwk, const std::string &redirectUri, const std::string &code, const std::vector<std::string> &scope, const std::string &codeVerifier) : url(url), clientId(clientId), jwk(jwk), redirectUri(redirectUri), code(code), scope(scope), codeVerifier(codeVerifier), refreshToken() {}
     OidcTokenRequest(const std::string &url, const std::string &clientId, const std::string &jwk, const std::vector<std::string> &scope, const std::string &refreshToken) : url(url), clientId(clientId), jwk(jwk), redirectUri(), code(), scope(scope), codeVerifier(), refreshToken(refreshToken) {}
     void AddHelseIdJournalId(const std::string &);
