@@ -12,6 +12,18 @@
 #include "include/Jwt.h"
 #include "include/Rs256.h"
 
+void OidcTokenRequest::AddHelseIdJournalId(const std::string &jid) {
+    helseidMultiTenantInfo.journalId = jid;
+}
+
+void OidcTokenRequest::AddHelseIdConsumerOrgNo(const std::string &no) {
+    helseidMultiTenantInfo.consumerOrgNo = no;
+}
+
+void OidcTokenRequest::AddHelseIdConsumerChildOrgNo(const std::string &no) {
+    helseidMultiTenantInfo.consumerChildOrgNo = no;
+}
+
 OidcPostRequest OidcTokenRequest::GetTokenRequest() const {
     std::string tokenEndpoint{};
     {
@@ -59,6 +71,41 @@ OidcPostRequest OidcTokenRequest::GetTokenRequest() const {
         token.Body()->Add("exp", iat + 120);
         token.Body()->Add("sub", clientId);
         token.Body()->Add("aud", tokenEndpoint);
+        if (helseidMultiTenantInfo.IsSet()) {
+            JwtPartArray arr{};
+            if (!helseidMultiTenantInfo.journalId.empty()) {
+                JwtPartObject jid{};
+                jid.Add("type", "nhn:sfm:journal-id");
+                JwtPartObject val{};
+                val.Add("journal_id", helseidMultiTenantInfo.journalId);
+                jid.Add("value", val);
+                arr.Add(jid);
+            }
+            if (!helseidMultiTenantInfo.consumerOrgNo.empty() || !helseidMultiTenantInfo.consumerChildOrgNo.empty()) {
+                std::string strval{"NO:ORGNR"};
+                if (!helseidMultiTenantInfo.consumerOrgNo.empty()) {
+                    strval.append(":");
+                    strval.append(helseidMultiTenantInfo.consumerOrgNo);
+                }
+                if (!helseidMultiTenantInfo.consumerChildOrgNo.empty()) {
+                    strval.append(":");
+                    strval.append(helseidMultiTenantInfo.consumerChildOrgNo);
+                }
+                JwtPartObject auth{};
+                auth.Add("type", "helseid_authorization");
+                JwtPartObject pr{};
+                JwtPartObject org{};
+                JwtPartObject identifier{};
+                identifier.Add("system", "urn:oid:1.0.6523");
+                identifier.Add("type", "ENH");
+                identifier.Add("value", strval);
+                org.Add("identifier", identifier);
+                pr.Add("organization", org);
+                auth.Add("practitioner_role", pr);
+                arr.Add(auth);
+            }
+            token.Body()->Add("authorization_details", arr);
+        }
         Rs256 rs256{signingKey};
         rs256.Sign(token);
         jwt = token.ToString();

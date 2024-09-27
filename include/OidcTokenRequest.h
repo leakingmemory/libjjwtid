@@ -14,6 +14,16 @@ struct OidcPostRequest {
     std::map<std::string,std::string> params{};
 };
 
+struct HelseidMultiTenantInfo {
+    std::string journalId{};
+    std::string consumerOrgNo{};
+    std::string consumerChildOrgNo{};
+
+    bool IsSet() const {
+        return !journalId.empty() || !consumerOrgNo.empty() || !consumerChildOrgNo.empty();
+    }
+};
+
 class OidcTokenRequest {
 private:
     std::string url;
@@ -24,9 +34,13 @@ private:
     std::vector<std::string> scope;
     std::string codeVerifier;
     std::string refreshToken;
-public:
+    HelseidMultiTenantInfo helseidMultiTenantInfo{};
+public
     OidcTokenRequest(const std::string &url, const std::string &clientId, const std::string &jwk, const std::string &redirectUri, const std::string &code, const std::vector<std::string> &scope, const std::string &codeVerifier) : url(url), clientId(clientId), jwk(jwk), redirectUri(redirectUri), code(code), scope(scope), codeVerifier(codeVerifier), refreshToken() {}
     OidcTokenRequest(const std::string &url, const std::string &clientId, const std::string &jwk, const std::vector<std::string> &scope, const std::string &refreshToken) : url(url), clientId(clientId), jwk(jwk), redirectUri(), code(), scope(scope), codeVerifier(), refreshToken(refreshToken) {}
+    void AddHelseIdJournalId(const std::string &);
+    void AddHelseIdConsumerOrgNo(const std::string &);
+    void AddHelseIdConsumerChildOrgNo(const std::string &);
     OidcPostRequest GetTokenRequest() const;
 };
 

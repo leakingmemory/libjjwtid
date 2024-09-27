@@ -86,3 +86,12 @@ target_link_libraries(tokenrequesttest PRIVATE -lssl -lcrypto)
 target_link_libraries(tokenrequesttest PRIVATE cpprestsdk::cpprest -lcrypto)
 
 add_test(NAME TokenRequestTest COMMAND tokenrequesttest)
+
+add_executable(helseidmultitenanttokenrequesttest HelseidMultiTenantOidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h)
+add_dependencies(helseidmultitenanttokenrequesttest "cpplevel.h")
+target_include_directories(helseidmultitenanttokenrequesttest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_link_libraries(helseidmultitenanttokenrequesttest PRIVATE crypto)
+target_link_libraries(helseidmultitenanttokenrequesttest PRIVATE -lssl -lcrypto)
+target_link_libraries(helseidmultitenanttokenrequesttest PRIVATE cpprestsdk::cpprest -lcrypto)
+
+add_test(NAME HelseIdMultiTenantTokenRequestTest COMMAND helseidmultitenanttokenrequesttest)
