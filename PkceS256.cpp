@@ -10,11 +10,18 @@ PkceS256::PkceS256() : verifier() {
     uint8_t rand[32];
     {
         std::random_device rd{};
+#ifdef WIN32
+        std::uniform_int_distribution<int> dist{0, 255};
+        for (int i = 0; i < 32; i++) {
+            rand[i] = static_cast<uint8_t>(dist(rd));
+        }
+#else
         std::uniform_int_distribution<uint8_t> dist{std::numeric_limits<uint8_t>::min(),
                                                     std::numeric_limits<uint8_t>::max()};
         for (int i = 0; i < 32; i++) {
             rand[i] = dist(rd);
         }
+#endif
     }
     Base64UrlEncoding encoding{};
     encoding.Encode(verifier, rand, 32);

@@ -1,0 +1,12 @@
+//
+// Created by sigsegv on 1/12/24.
+//
+
+#ifndef LIBJJWTID_CPPLEVEL_H
+#define LIBJJWTID_CPPLEVEL_H
+
+#define LIBJJWTID_CPPLEVEL 20
+#define LIBJJWTID_HAS_CONSTEXPRSTRING false
+#define LIBJJWTID_OPENSSL3 true
+
+#endif //LIBJJWTID_CPPLEVEL_H
