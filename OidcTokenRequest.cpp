@@ -8,7 +8,6 @@
 #include <boost/uuid/uuid_io.hpp> // for to_string
 
 #include <sstream>
-#include <cpprest/uri.h>
 #include "include/Jwt.h"
 #include "include/Rs256.h"
 
