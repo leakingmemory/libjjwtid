@@ -17,8 +17,9 @@ private:
 public:
     constexpr DpopHost() = default;
     DpopHost(Jwt dpop);
-    std::string Generate(std::string method, std::string url, std::string ath = "");
+    std::string Generate(std::string method, std::string url, std::string accessToken = "");
     bool Verify(Jwt &jwt) const;
+    bool Verify(Jwt &jwt, const std::string &accessToken) const;
 };
 
 

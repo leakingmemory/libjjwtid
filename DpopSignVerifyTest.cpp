@@ -21,4 +21,29 @@ int main() {
             return 1;
         }
     }
+    std::string secondPop = source.Generate("POST", "https://example.com/foo", "accesstoken");
+    {
+        Jwt jwt{secondPop};
+        if (!dest.Verify(jwt, "accesstoken")) {
+            std::cerr << "Second verification failed" << std::endl;
+            return 1;
+        }
+    }
+    std::string thirdPop = source.Generate("POST", "https://example.com/foo", "accesstoken");
+    {
+        Jwt jwt{thirdPop};
+        if (dest.Verify(jwt, "wrongtoken")) {
+            std::cerr << "Second verification succeeded when it should have failed" << std::endl;
+            return 1;
+        }
+    }
+    DpopHost wrongSource{};
+    std::string fourthPop = wrongSource.Generate("POST", "https://example.com/foo", "accesstoken");
+    {
+        Jwt jwt{fourthPop};
+        if (dest.Verify(jwt, "accesstoken")) {
+            std::cerr << "Fourth verification succeeded when it should have failed" << std::endl;
+            return 1;
+        }
+    }
 }

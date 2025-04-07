@@ -8,6 +8,7 @@
 #include "include/Jwt.h"
 #include "include/Base64.h"
 #include "include/Rs256.h"
+#include "include/sha2alg.h"
 
 class DpopException : public std::exception {
 private:
@@ -31,7 +32,7 @@ DpopHost::DpopHost(Jwt dpop) {
     }
 }
 
-std::string DpopHost::Generate(std::string method, std::string url, std::string ath) {
+std::string DpopHost::Generate(std::string method, std::string url, std::string accessToken) {
     Jwt jwt{JwtType::DPOP};
     auto body = jwt.Body();
     {
@@ -60,8 +61,12 @@ std::string DpopHost::Generate(std::string method, std::string url, std::string 
         auto iat = std::time(nullptr);
         body->Add("iat", iat);
         body->Add("htu", url);
-        if (!ath.empty()) {
-            body->Add("ath", ath);
+        if (!accessToken.empty()) {
+            auto sh256 = sha256::Digest(accessToken);
+            uint8_t data[32];
+            sh256.Result(data);
+            Base64UrlEncoding encoding{};
+            body->Add("ath", encoding.Encode(data, 32));
         }
     }
     if (!privateKey) {
@@ -87,4 +92,20 @@ bool DpopHost::Verify(Jwt &jwt) const {
     }
     Rs256 rs256{jwk.ToVerificationKey()};
     return rs256.Verify(jwt);
+}
+
+bool DpopHost::Verify(Jwt &jwt, const std::string &accessToken) const {
+    if (!Verify(jwt)) {
+        return false;
+    }
+    if (!accessToken.empty()) {
+        auto sh256 = sha256::Digest(accessToken);
+        uint8_t data[32];
+        sh256.Result(data);
+        Base64UrlEncoding encoding{};
+        if (encoding.Encode(data, 32) != jwt.Body()->GetString("ath")) {
+            return false;
+        }
+    }
+    return true;
 }
