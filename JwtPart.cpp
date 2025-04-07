@@ -48,6 +48,7 @@ public:
     JwtPartObjectValue(const std::map<std::string,std::shared_ptr<JwtPartValue>> &map) : map(map) {}
     std::map<std::string, std::shared_ptr<JwtPartGenericValue>> GetObjectItems() override;
     [[nodiscard]] nlohmann::json ToJson() const override;
+    std::string ToJsonStr() const override;
 };
 
 class JwtPartArrayValue : public JwtPartJsonValue {
@@ -58,6 +59,7 @@ public:
     JwtPartArrayValue(const std::vector<std::shared_ptr<JwtPartValue>> &vec) : vec(vec) {}
     std::vector<std::shared_ptr<JwtPartGenericValue>> GetArrayItems() override;
     [[nodiscard]] nlohmann::json ToJson() const override;
+    std::string ToJsonStr() const override;
 };
 
 class JwtPartStringValue : public JwtPartValue {
@@ -69,6 +71,7 @@ public:
     std::string GetString() override;
     void AddToJson(nlohmann::json &obj, const std::string &name) const override;
     void AddToJson(nlohmann::json &obj) const override;
+    std::string ToJsonStr() const override;
 };
 
 class JwtPartIntegerValue : public JwtPartValue {
@@ -80,6 +83,7 @@ public:
     int64_t GetInteger() override;
     void AddToJson(nlohmann::json &obj, const std::string &name) const override;
     void AddToJson(nlohmann::json &obj) const override;
+    std::string ToJsonStr() const override;
 };
 
 void JwtPartJsonValue::AddToJson(nlohmann::json &obj, const std::string &name) const {
@@ -126,6 +130,10 @@ nlohmann::json JwtPartObjectValue::ToJson() const {
     return obj;
 }
 
+std::string JwtPartObjectValue::ToJsonStr() const {
+    return ToJson().dump();
+}
+
 JwtPartArrayValue::JwtPartArrayValue(const nlohmann::json &json) : vec() {
     if (json.is_array()) {
         for (const auto &item : json) {
@@ -158,6 +166,10 @@ nlohmann::json JwtPartArrayValue::ToJson() const {
     return arr;
 }
 
+std::string JwtPartArrayValue::ToJsonStr() const {
+    return ToJson().dump();
+}
+
 std::string JwtPartStringValue::GetString() {
     return str;
 }
@@ -170,6 +182,11 @@ void JwtPartStringValue::AddToJson(nlohmann::json &obj) const {
     obj.emplace_back(str);
 }
 
+std::string JwtPartStringValue::ToJsonStr() const {
+    nlohmann::json obj{str};
+    return obj.dump();
+}
+
 int64_t JwtPartIntegerValue::GetInteger() {
     return integer;
 }
@@ -180,6 +197,10 @@ void JwtPartIntegerValue::AddToJson(nlohmann::json &obj, const std::string &name
 
 void JwtPartIntegerValue::AddToJson(nlohmann::json &obj) const {
     obj.emplace_back(integer);
+}
+
+std::string JwtPartIntegerValue::ToJsonStr() const {
+    return std::to_string(integer);
 }
 
 void JwtPartObject::Add(const std::string &name, const JwtPartObject &obj) {
@@ -207,6 +228,8 @@ JwtPart::JwtPart(const std::string &str) : JwtPart() {
                 insert_or_assign(key, std::make_shared<JwtPartIntegerValue>(value));
             } else if (value.is_array()) {
                 insert_or_assign(key, std::make_shared<JwtPartArrayValue>(value));
+            } else if (value.is_object()) {
+                insert_or_assign(key, std::make_shared<JwtPartObjectValue>(value));
             }
         }
     }
@@ -236,6 +259,10 @@ void JwtPart::Add(const std::string &name, int64_t integer) {
 
 void JwtPart::Add(const std::string &name, const JwtPartArray &arr) {
     insert_or_assign(name, std::make_shared<JwtPartArrayValue>(arr));
+}
+
+void JwtPart::AddJsonObject(const std::string &name, const std::string &jsonObject) {
+    insert_or_assign(name, std::make_shared<JwtPartObjectValue>(nlohmann::json::parse(jsonObject)));
 }
 
 std::string JwtPart::GetString(const std::string &name) {

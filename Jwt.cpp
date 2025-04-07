@@ -4,8 +4,12 @@
 
 #include "include/Jwt.h"
 
-Jwt::Jwt() : header(std::make_shared<JwtPart>()), body(std::make_shared<JwtPart>()) {
-    header->Add("typ", "JWT");
+Jwt::Jwt(JwtType tp) : header(std::make_shared<JwtPart>()), body(std::make_shared<JwtPart>()) {
+    if (tp == JwtType::DPOP) {
+        header->Add("typ", "dpop+jwt");
+    } else {
+        header->Add("typ", "JWT");
+    }
 }
 
 Jwt::Jwt(const std::string &str) : header(), body() {

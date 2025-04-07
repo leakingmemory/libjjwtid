@@ -23,6 +23,7 @@ private:
     Bignum p{};
     Bignum q{};
     Bignum qi{};
+    bool privateKey{true};
 public:
     constexpr JwkPemRsaKey() {}
     std::shared_ptr<OpensslRsa> CreateOpensslRsa() const;

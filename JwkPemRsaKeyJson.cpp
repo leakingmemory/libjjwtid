@@ -41,26 +41,43 @@ void JwkPemRsaKey::FromJwk(const std::string &json) {
             throw std::exception();
         }
     }
+    bool pubkey{true};
+    bool privkey{true};
     if (!jwkJson.contains("d") || !jwkJson["d"].is_string()) {
-        throw std::exception();
+        privkey = false;
     }
     if (!jwkJson.contains("dp") || !jwkJson["dp"].is_string()) {
-        throw std::exception();
+        privkey = false;
     }
     if (!jwkJson.contains("dq") || !jwkJson["dq"].is_string()) {
-        throw std::exception();
+        privkey = false;
     }
     if (!jwkJson.contains("e") || !jwkJson["e"].is_string()) {
-        throw std::exception();
+        pubkey = false;
+        privkey = false;
     }
     if (!jwkJson.contains("n") || !jwkJson["n"].is_string()) {
-        throw std::exception();
+        pubkey = false;
+        privkey = false;
     }
     if (!jwkJson.contains("p") || !jwkJson["p"].is_string()) {
-        throw std::exception();
+        privkey = false;
     }
     if (!jwkJson.contains("q") || !jwkJson["q"].is_string()) {
+        privkey = false;
+    }
+    if (!pubkey && !privkey) {
         throw std::exception();
+    }
+
+    if (!privkey) {
+        std::string e = jwkJson["e"];
+        std::string n = jwkJson["n"];
+
+        Base64UrlEncoding encoding{};
+        this->e = encoding.Decode(e);
+        this->n = encoding.Decode(n);
+        return;
     }
 
     std::string d = jwkJson["d"];

@@ -8,6 +8,11 @@
 #include "JwtPart.h"
 #include <memory>
 
+enum class JwtType {
+    JWT,
+    DPOP
+};
+
 class Jwt {
 private:
     std::shared_ptr<JwtPart> header;
@@ -16,7 +21,8 @@ private:
     std::string unverifiedBody{};
     std::string signature{};
 public:
-    Jwt();
+    Jwt(JwtType type);
+    Jwt() : Jwt(JwtType::JWT) {}
     explicit Jwt(const std::string &);
     [[nodiscard]] std::shared_ptr<JwtPart> Header() const {
         return header;
