@@ -7,6 +7,8 @@
 Jwt::Jwt(JwtType tp) : header(std::make_shared<JwtPart>()), body(std::make_shared<JwtPart>()) {
     if (tp == JwtType::DPOP) {
         header->Add("typ", "dpop+jwt");
+    } else if (tp == JwtType::CLIENT_AUTHENTICATION) {
+        header->Add("typ", "client-authentication+jwt");
     } else {
         header->Add("typ", "JWT");
     }

@@ -57,7 +57,7 @@ OidcPostRequest OidcTokenRequest::GetTokenRequest() const {
             signingKey = rsa.ToSigningKey();
         }
         auto iat = std::time(nullptr);
-        Jwt token{};
+        Jwt token{JwtType::CLIENT_AUTHENTICATION};
         {
             boost::uuids::random_generator generator;
             boost::uuids::uuid randomUUID = generator();
@@ -69,7 +69,7 @@ OidcPostRequest OidcTokenRequest::GetTokenRequest() const {
         token.Body()->Add("nbf", iat);
         token.Body()->Add("exp", iat + 120);
         token.Body()->Add("sub", clientId);
-        token.Body()->Add("aud", tokenEndpoint);
+        token.Body()->Add("aud", url);
         if (helseidMultiTenantInfo.IsSet()) {
             JwtPartArray arr{};
             if (!helseidMultiTenantInfo.journalId.empty()) {

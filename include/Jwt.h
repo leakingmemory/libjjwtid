@@ -10,7 +10,8 @@
 
 enum class JwtType {
     JWT,
-    DPOP
+    DPOP,
+    CLIENT_AUTHENTICATION
 };
 
 class Jwt {
