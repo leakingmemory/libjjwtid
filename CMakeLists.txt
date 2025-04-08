@@ -80,7 +80,7 @@ else()
     target_link_libraries(jjwtid PRIVATE -lssl -lcrypto)
 endif()
 
-set_target_properties(jjwtid PROPERTIES SOVERSION 2 VERSION 2.0.0)
+set_target_properties(jjwtid PROPERTIES SOVERSION 3 VERSION 3.0.0)
 
 install(TARGETS jjwtid
         LIBRARY DESTINATION lib
