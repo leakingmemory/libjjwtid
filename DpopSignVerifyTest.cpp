@@ -21,27 +21,27 @@ int main() {
             return 1;
         }
     }
-    std::string secondPop = source.Generate("POST", "https://example.com/foo", "accesstoken");
+    std::string secondPop = source.Generate("POST", "https://example.com/foo", "accesstoken", "nonce");
     {
         Jwt jwt{secondPop};
-        if (!dest.Verify(jwt, "accesstoken")) {
+        if (!dest.Verify(jwt, "accesstoken", "nonce")) {
             std::cerr << "Second verification failed" << std::endl;
             return 1;
         }
     }
-    std::string thirdPop = source.Generate("POST", "https://example.com/foo", "accesstoken");
+    std::string thirdPop = source.Generate("POST", "https://example.com/foo", "accesstoken", "nonce");
     {
         Jwt jwt{thirdPop};
-        if (dest.Verify(jwt, "wrongtoken")) {
+        if (dest.Verify(jwt, "wrongtoken", "nonce")) {
             std::cerr << "Second verification succeeded when it should have failed" << std::endl;
             return 1;
         }
     }
     DpopHost wrongSource{};
-    std::string fourthPop = wrongSource.Generate("POST", "https://example.com/foo", "accesstoken");
+    std::string fourthPop = wrongSource.Generate("POST", "https://example.com/foo", "accesstoken", "nonce");
     {
         Jwt jwt{fourthPop};
-        if (dest.Verify(jwt, "accesstoken")) {
+        if (dest.Verify(jwt, "accesstoken", "nonce")) {
             std::cerr << "Fourth verification succeeded when it should have failed" << std::endl;
             return 1;
         }

@@ -32,7 +32,7 @@ DpopHost::DpopHost(Jwt dpop) {
     }
 }
 
-std::string DpopHost::Generate(std::string method, std::string url, std::string accessToken) {
+std::string DpopHost::Generate(const std::string &method, const std::string &url, const std::string &accessToken, const std::string &nonce) {
     Jwt jwt{JwtType::DPOP};
     auto body = jwt.Body();
     {
@@ -68,6 +68,9 @@ std::string DpopHost::Generate(std::string method, std::string url, std::string 
             Base64UrlEncoding encoding{};
             body->Add("ath", encoding.Encode(data, 32));
         }
+        if (!nonce.empty()) {
+            body->Add("nonce", nonce);
+        }
     }
     if (!privateKey) {
         if (publicKey) {
@@ -94,8 +97,11 @@ bool DpopHost::Verify(Jwt &jwt) const {
     return rs256.Verify(jwt);
 }
 
-bool DpopHost::Verify(Jwt &jwt, const std::string &accessToken) const {
+bool DpopHost::Verify(Jwt &jwt, const std::string &accessToken, const std::string &nonce) const {
     if (!Verify(jwt)) {
+        return false;
+    }
+    if (!jwt.Body()) {
         return false;
     }
     if (!accessToken.empty()) {
@@ -104,6 +110,11 @@ bool DpopHost::Verify(Jwt &jwt, const std::string &accessToken) const {
         sh256.Result(data);
         Base64UrlEncoding encoding{};
         if (encoding.Encode(data, 32) != jwt.Body()->GetString("ath")) {
+            return false;
+        }
+    }
+    if (!nonce.empty()) {
+        if (nonce != jwt.Body()->GetString("nonce")) {
             return false;
         }
     }
