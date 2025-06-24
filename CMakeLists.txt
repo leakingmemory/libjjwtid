@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.26)
 project(libjjwtid)
 
+include(GNUInstallDirs)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CPPLEVEL 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -82,14 +84,17 @@ endif()
 
 set_target_properties(jjwtid PROPERTIES SOVERSION 3 VERSION 3.0.0)
 
+include(GNUInstallDirs)
+
 install(TARGETS jjwtid
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cpplevel.h"
-        DESTINATION include/jjwtid)
-install(DIRECTORY include/ DESTINATION include/jjwtid)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/jjwtid)
+install(DIRECTORY include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/jjwtid)
 
 
 enable_testing()
