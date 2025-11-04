@@ -5,6 +5,7 @@
 #ifndef DRWHATSNOT_TOKENURL_H
 #define DRWHATSNOT_TOKENURL_H
 
+#include "HelseidMultiTenantInfo.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -12,16 +13,6 @@
 struct OidcPostRequest {
     std::string url{};
     std::map<std::string,std::string> params{};
-};
-
-struct HelseidMultiTenantInfo {
-    std::string journalId{};
-    std::string consumerOrgNo{};
-    std::string consumerChildOrgNo{};
-
-    bool IsSet() const {
-        return !journalId.empty() || !consumerOrgNo.empty() || !consumerChildOrgNo.empty();
-    }
 };
 
 class OidcTokenRequest {

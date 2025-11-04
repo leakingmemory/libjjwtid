@@ -72,7 +72,7 @@ if (WIN32)
     target_include_directories(crypto PRIVATE "${OPENSSL_INCLUDE_DIR}")
 endif()
 
-add_library(jjwtid SHARED Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h OidcTokenRequest.cpp include/OidcTokenRequest.h DpopHost.cpp include/DpopHost.h)
+add_library(jjwtid SHARED Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h OidcTokenRequest.cpp include/OidcTokenRequest.h DpopHost.cpp include/DpopHost.h OidcClientAssertion.cpp include/OidcClientAssertion.h)
 add_dependencies(jjwtid "cpplevel.h")
 target_include_directories(jjwtid PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(jjwtid PRIVATE crypto)
@@ -121,7 +121,7 @@ endif()
 
 add_test(NAME JwkToPemTest COMMAND jwktopemtest)
 
-add_executable(tokenrequesttest OidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h)
+add_executable(tokenrequesttest OidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h OidcClientAssertion.cpp include/OidcClientAssertion.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h)
 add_dependencies(tokenrequesttest "cpplevel.h")
 target_include_directories(tokenrequesttest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(tokenrequesttest PRIVATE crypto)
@@ -133,7 +133,7 @@ endif()
 
 add_test(NAME TokenRequestTest COMMAND tokenrequesttest)
 
-add_executable(helseidmultitenanttokenrequesttest HelseidMultiTenantOidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h)
+add_executable(helseidmultitenanttokenrequesttest HelseidMultiTenantOidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h OidcClientAssertion.cpp include/OidcClientAssertion.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h)
 add_dependencies(helseidmultitenanttokenrequesttest "cpplevel.h")
 target_include_directories(helseidmultitenanttokenrequesttest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(helseidmultitenanttokenrequesttest PRIVATE crypto)
