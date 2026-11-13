@@ -41,6 +41,8 @@ public:
     std::string ToPublicPem() const;
     std::string Sign(const std::string &content) const override;
     bool Verify(const std::string &content, const std::string &signature) const override;
+    std::string SignPss(const std::string &content) const override;
+    bool VerifyPss(const std::string &content, const std::string &signature) const override;
 };
 
 

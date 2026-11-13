@@ -11,6 +11,7 @@
 #include <openssl/pem.h>
 #include <openssl/bio.h>
 #include <openssl/bn.h>
+#include <openssl/evp.h>
 #if (LIBJJWTID_OPENSSL3)
 #include <openssl/param_build.h>
 #else
@@ -380,6 +381,141 @@ bool OpensslRsa::Verify(const std::string &content, const std::string &signature
         digester.Result(digest);
     }
     auto res = RSA_verify(NID_sha256, digest, sizeof(digest), (unsigned char *) signature.data(), signature.size(), &(*rsa));
+    if (res != 1) {
+        std::cerr << Openssl::GetError() << "\n";
+        return false;
+    }
+    return true;
+#endif
+}
+
+std::string OpensslRsa::SignPss(const std::string &content) const {
+#if (LIBJJWTID_OPENSSL3)
+    std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX *)> ctx{
+        EVP_MD_CTX_new(),
+        [] (EVP_MD_CTX *release) { EVP_MD_CTX_free(release); }
+    };
+    if (!ctx) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    EVP_PKEY_CTX *pctx{nullptr};
+    if (EVP_DigestSignInit(&(*ctx), &pctx, EVP_sha256(), NULL, &(*rsa)) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    // RFC 7518 3.5: MGF1 with SHA-256 and a salt length equal to the hash length
+    if (EVP_PKEY_CTX_set_rsa_padding(pctx, RSA_PKCS1_PSS_PADDING) <= 0 ||
+        EVP_PKEY_CTX_set_rsa_mgf1_md(pctx, EVP_sha256()) <= 0 ||
+        EVP_PKEY_CTX_set_rsa_pss_saltlen(pctx, RSA_PSS_SALTLEN_DIGEST) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    size_t siglen{0};
+    if (EVP_DigestSignUpdate(&(*ctx), content.data(), content.size()) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    if (EVP_DigestSignFinal(&(*ctx), NULL, &siglen) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    std::string signature{};
+    signature.resize(siglen);
+    if (EVP_DigestSignFinal(&(*ctx), (unsigned char *) signature.data(), &siglen) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    signature.resize(siglen);
+#else
+    sha256::result_type digest{};
+    {
+        sha256 digester{};
+        auto remaining = content.size();
+        const sha256::chunk_type *c = (const sha256::chunk_type *) content.data();
+        while (remaining > sizeof(*c)) {
+            digester.Consume(*c);
+            c = (const sha256::chunk_type *) (((const char *) c) + sizeof(*c));
+            remaining -= sizeof(*c);
+        }
+        digester.Final((const unsigned char *) c, remaining);
+        digester.Result(digest);
+    }
+    unsigned int siglen = RSA_size(&(*rsa));
+    std::string encoded{};
+    encoded.resize(siglen);
+    // RFC 7518 3.5: MGF1 with SHA-256 and a salt length equal to the hash length
+    if (RSA_padding_add_PKCS1_PSS_mgf1(&(*rsa), (unsigned char *) encoded.data(), digest, EVP_sha256(), EVP_sha256(), sizeof(digest)) != 1) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    std::string signature{};
+    signature.resize(siglen);
+    auto res = RSA_private_encrypt(siglen, (const unsigned char *) encoded.data(), (unsigned char *) signature.data(), &(*rsa), RSA_NO_PADDING);
+    if (res <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+#endif
+    return signature;
+}
+
+bool OpensslRsa::VerifyPss(const std::string &content, const std::string &signature) const {
+#if (LIBJJWTID_OPENSSL3)
+    std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX *)> ctx{
+            EVP_MD_CTX_new(),
+            [] (EVP_MD_CTX *release) { EVP_MD_CTX_free(release); }
+    };
+    if (!ctx) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    EVP_PKEY_CTX *pctx{nullptr};
+    if (EVP_DigestVerifyInit(&(*ctx), &pctx, EVP_sha256(), NULL, &(*rsa)) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    if (EVP_PKEY_CTX_set_rsa_padding(pctx, RSA_PKCS1_PSS_PADDING) <= 0 ||
+        EVP_PKEY_CTX_set_rsa_mgf1_md(pctx, EVP_sha256()) <= 0 ||
+        EVP_PKEY_CTX_set_rsa_pss_saltlen(pctx, RSA_PSS_SALTLEN_DIGEST) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        throw std::exception();
+    }
+    if (EVP_DigestVerifyUpdate(&(*ctx), content.data(), content.size()) <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        return false;
+    }
+    if (EVP_DigestVerifyFinal(&(*ctx), (unsigned char *) signature.data(), signature.size()) != 1) {
+        std::cerr << Openssl::GetError() << "\n";
+        return false;
+    }
+    return true;
+#else
+    sha256::result_type digest{};
+    {
+        sha256 digester{};
+        auto remaining = content.size();
+        const sha256::chunk_type *c = (const sha256::chunk_type *) content.data();
+        while (remaining > sizeof(*c)) {
+            digester.Consume(*c);
+            c = (const sha256::chunk_type *) (((const char *) c) + sizeof(*c));
+            remaining -= sizeof(*c);
+        }
+        digester.Final((const unsigned char *) c, remaining);
+        digester.Result(digest);
+    }
+    unsigned int rsaSize = RSA_size(&(*rsa));
+    if (signature.size() != rsaSize) {
+        return false;
+    }
+    std::string encoded{};
+    encoded.resize(rsaSize);
+    auto len = RSA_public_decrypt(signature.size(), (const unsigned char *) signature.data(), (unsigned char *) encoded.data(), &(*rsa), RSA_NO_PADDING);
+    if (len <= 0) {
+        std::cerr << Openssl::GetError() << "\n";
+        return false;
+    }
+    auto res = RSA_verify_PKCS1_PSS_mgf1(&(*rsa), digest, EVP_sha256(), EVP_sha256(), (const unsigned char *) encoded.data(), sizeof(digest));
     if (res != 1) {
         std::cerr << Openssl::GetError() << "\n";
         return false;

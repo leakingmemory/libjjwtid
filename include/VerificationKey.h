@@ -10,6 +10,7 @@
 class VerificationKey {
 public:
     virtual bool Verify(const std::string &content, const std::string &signature) const = 0;
+    virtual bool VerifyPss(const std::string &content, const std::string &signature) const = 0;
 };
 
 #endif //DRWHATSNOT_VERIFICATIONKEY_H
