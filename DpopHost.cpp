@@ -55,7 +55,7 @@ std::string DpopHost::Generate(const std::string &method, const std::string &url
 #endif
         }
         Base64UrlEncoding encoding{};
-        encoding.Encode(jti, rand, 32);
+        encoding.Encode(jti, rand, sizeof(rand));
         body->Add("jti", jti);
         body->Add("htm", method);
         auto iat = std::time(nullptr);
