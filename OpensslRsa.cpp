@@ -11,14 +11,14 @@
 #include <openssl/pem.h>
 #include <openssl/bio.h>
 #include <openssl/bn.h>
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
 #include <openssl/param_build.h>
 #else
 #include <bit>
 #include "include/sha2alg.h"
 #endif
 
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
 OpensslRsa::OpensslRsa() : rsa(nullptr, [] (EVP_PKEY *) {}) {}
 
 OpensslRsa::OpensslRsa(OpensslRsa &&mv)  noexcept : rsa(nullptr, [] (EVP_PKEY *) {}) {
@@ -53,7 +53,7 @@ static std::unique_ptr<RSA,void (*)(RSA *)> GeneratePkey(BIGNUM *e) {
 
 OpensslRsa::~OpensslRsa() = default;
 
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
 static std::unique_ptr<EVP_PKEY,void (*)(EVP_PKEY *)> PkeyFromParams(EVP_PKEY_CTX &pctx, OSSL_PARAM *params) {
     EVP_PKEY *pkey{nullptr};
     int res = EVP_PKEY_fromdata(&pctx, &pkey, EVP_PKEY_KEYPAIR, params);
@@ -99,7 +99,7 @@ bool OpensslRsa::operator==(const OpensslRsa &other) const {
 }
 
 void OpensslRsa::GenerateRandom(int sizeKey, int exponent) {
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
     std::unique_ptr<BIGNUM, void (*)(BIGNUM *)> e = {BN_new(), [] (BIGNUM *release) { BN_free(release); }};
     BN_native2bn((unsigned char *) &exponent, sizeof(exponent), &(*e));
     std::unique_ptr<EVP_PKEY_CTX, void (*)(EVP_PKEY_CTX *)> pctx{EVP_PKEY_CTX_new_id( EVP_PKEY_RSA, NULL), [] (EVP_PKEY_CTX *ctx) {EVP_PKEY_CTX_free(ctx);}};
@@ -116,7 +116,7 @@ void OpensslRsa::GenerateRandom(int sizeKey, int exponent) {
 
 std::map<std::string,Bignum> OpensslRsa::ExportParams() const {
     std::map<std::string,Bignum> paramsMap{};
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
     OSSL_PARAM *params;
     int ret = EVP_PKEY_todata(&(*rsa), EVP_PKEY_KEYPAIR, &params);
     if (ret <= 0) {
@@ -160,7 +160,7 @@ std::map<std::string,Bignum> OpensslRsa::ExportParams() const {
 }
 
 void OpensslRsa::ImportParams(const std::map<std::string, Bignum> &params) {
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
     std::unique_ptr<EVP_PKEY_CTX, void (*)(EVP_PKEY_CTX *)> pctx{EVP_PKEY_CTX_new_id( EVP_PKEY_RSA, NULL), [] (EVP_PKEY_CTX *ctx) {EVP_PKEY_CTX_free(ctx);}};
     EVP_PKEY_fromdata_init(&(*pctx));
     std::unique_ptr<OSSL_PARAM_BLD,void (*)(OSSL_PARAM_BLD *)> bld{
@@ -215,7 +215,7 @@ void OpensslRsa::ImportParams(const std::map<std::string, Bignum> &params) {
 }
 
 void OpensslRsa::ImportPublicParams(const std::map<std::string, Bignum> &params) {
-#if (OPENSSL4)
+#if (LIBJJWTID_OPENSSL3)
     std::unique_ptr<EVP_PKEY_CTX, void (*)(EVP_PKEY_CTX *)> pctx{EVP_PKEY_CTX_new_id( EVP_PKEY_RSA, NULL), [] (EVP_PKEY_CTX *ctx) {EVP_PKEY_CTX_free(ctx);}};
     EVP_PKEY_fromdata_init(&(*pctx));
     std::unique_ptr<OSSL_PARAM_BLD,void (*)(OSSL_PARAM_BLD *)> bld{
@@ -254,7 +254,7 @@ void OpensslRsa::ImportPublicParams(const std::map<std::string, Bignum> &params)
 std::string OpensslRsa::ToTraditionalPrivatePem() const {
     std::string pem{};
     std::unique_ptr<BIO,void (*)(BIO*)> bio{BIO_new(BIO_s_mem()), [] (auto *release) {BIO_free(release);}};
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
     auto ret = PEM_write_bio_PrivateKey_traditional(&(*bio), &(*rsa), NULL, NULL, 0, NULL, NULL);
 #else
     auto ret = PEM_write_bio_RSAPrivateKey(&(*bio), &(*rsa), NULL, NULL, 0, NULL, NULL);
@@ -272,7 +272,7 @@ std::string OpensslRsa::ToTraditionalPrivatePem() const {
 std::string OpensslRsa::ToPublicPem() const {
     std::string pem{};
     std::unique_ptr<BIO,void (*)(BIO*)> bio{BIO_new(BIO_s_mem()), [] (auto *release) {BIO_free(release);}};
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
     auto ret = PEM_write_bio_PUBKEY(&(*bio), &(*rsa));
 #else
     auto ret = PEM_write_bio_RSAPublicKey(&(*bio), &(*rsa));
@@ -288,7 +288,7 @@ std::string OpensslRsa::ToPublicPem() const {
 }
 
 std::string OpensslRsa::Sign(const std::string &content) const {
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
     std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX *)> ctx{
         EVP_MD_CTX_new(),
         [] (EVP_MD_CTX *release) { EVP_MD_CTX_free(release); }
@@ -343,7 +343,7 @@ std::string OpensslRsa::Sign(const std::string &content) const {
 }
 
 bool OpensslRsa::Verify(const std::string &content, const std::string &signature) const {
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
     std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX *)> ctx{
             EVP_MD_CTX_new(),
             [] (EVP_MD_CTX *release) { EVP_MD_CTX_free(release); }

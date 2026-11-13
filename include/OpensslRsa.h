@@ -13,7 +13,7 @@
 #include "VerificationKey.h"
 #include "cpplevel.h"
 
-#if (OPENSSL3)
+#if (LIBJJWTID_OPENSSL3)
 typedef struct evp_pkey_st EVP_PKEY;
 #else
 typedef struct rsa_st RSA;
@@ -21,7 +21,7 @@ typedef struct rsa_st RSA;
 
 class OpensslRsa : public SigningKey, public VerificationKey {
 private:
-#ifdef OPENSSL3
+#if (LIBJJWTID_OPENSSL3)
     std::unique_ptr<EVP_PKEY,void (*)(EVP_PKEY *)> rsa;
 #else
     std::unique_ptr<RSA,void (*)(RSA *)> rsa;

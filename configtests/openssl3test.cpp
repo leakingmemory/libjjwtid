@@ -3,3 +3,7 @@
 //
 
 #include <openssl/param_build.h>
+
+int main() {
+    return 0;
+}
