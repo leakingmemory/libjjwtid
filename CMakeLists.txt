@@ -121,7 +121,7 @@ endif()
 
 add_test(NAME JwkToPemTest COMMAND jwktopemtest)
 
-add_executable(tokenrequesttest OidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h OidcClientAssertion.cpp include/OidcClientAssertion.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h)
+add_executable(tokenrequesttest OidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h OidcClientAssertion.cpp include/OidcClientAssertion.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Ps256.cpp include/Ps256.h)
 add_dependencies(tokenrequesttest "cpplevel.h")
 target_include_directories(tokenrequesttest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(tokenrequesttest PRIVATE crypto)
@@ -133,7 +133,7 @@ endif()
 
 add_test(NAME TokenRequestTest COMMAND tokenrequesttest)
 
-add_executable(helseidmultitenanttokenrequesttest HelseidMultiTenantOidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h OidcClientAssertion.cpp include/OidcClientAssertion.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h)
+add_executable(helseidmultitenanttokenrequesttest HelseidMultiTenantOidcTokenRequestTest.cpp OidcTokenRequest.cpp include/OidcTokenRequest.h OidcClientAssertion.cpp include/OidcClientAssertion.h Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Ps256.cpp include/Ps256.h)
 add_dependencies(helseidmultitenanttokenrequesttest "cpplevel.h")
 target_include_directories(helseidmultitenanttokenrequesttest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(helseidmultitenanttokenrequesttest PRIVATE crypto)
@@ -145,7 +145,7 @@ endif()
 
 add_test(NAME HelseIdMultiTenantTokenRequestTest COMMAND helseidmultitenanttokenrequesttest)
 
-add_executable(dpopsignverifytest DpopSignVerifyTest.cpp Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Rs256.cpp include/Rs256.h DpopHost.cpp include/DpopHost.h)
+add_executable(dpopsignverifytest DpopSignVerifyTest.cpp Jwt.cpp include/Jwt.h JwtPart.cpp include/JwtPart.h Ps256.cpp include/Ps256.h DpopHost.cpp include/DpopHost.h)
 add_dependencies(dpopsignverifytest "cpplevel.h")
 target_include_directories(dpopsignverifytest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(dpopsignverifytest PRIVATE crypto)

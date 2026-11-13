@@ -4,7 +4,7 @@
 
 #include "include/OidcTokenRequest.h"
 #include "include/JwkPemRsaKey.h"
-#include "include/Rs256.h"
+#include "include/Ps256.h"
 #include "include/Jwt.h"
 #include <iostream>
 
@@ -37,10 +37,10 @@ int main() {
             std::cerr << "No jwt\n";
             return 1;
         }
-        Rs256 rs256{jwkobj.ToVerificationKey()};
+        Ps256 ps256{jwkobj.ToVerificationKey()};
         {
             Jwt jwtobj{jwt};
-            if (!rs256.Verify(jwtobj)) {
+            if (!ps256.Verify(jwtobj)) {
                 std::cerr << "Verify failed\n";
                 return 1;
             }

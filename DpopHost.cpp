@@ -7,7 +7,7 @@
 #include "include/DpopHost.h"
 #include "include/Jwt.h"
 #include "include/Base64.h"
-#include "include/Rs256.h"
+#include "include/Ps256.h"
 #include "include/sha2alg.h"
 
 class DpopException : public std::exception {
@@ -84,8 +84,8 @@ std::string DpopHost::Generate(const std::string &method, const std::string &url
     header->Add("alg", "RS256");
     auto jwkPub = jwk.ToPublicJwk();
     header->AddJsonObject("jwk", jwkPub); // str json
-    Rs256 rs256{jwk.ToSigningKey()};
-    rs256.Sign(jwt);
+    Ps256 ps256{jwk.ToSigningKey()};
+    ps256.Sign(jwt);
     return jwt.ToString();
 }
 
@@ -93,8 +93,8 @@ bool DpopHost::Verify(Jwt &jwt) const {
     if (!publicKey) {
         throw DpopException("Dpop: No verification key");
     }
-    Rs256 rs256{jwk.ToVerificationKey()};
-    return rs256.Verify(jwt);
+    Ps256 ps256{jwk.ToVerificationKey()};
+    return ps256.Verify(jwt);
 }
 
 bool DpopHost::Verify(Jwt &jwt, const std::string &accessToken, const std::string &nonce) const {

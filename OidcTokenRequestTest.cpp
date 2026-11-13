@@ -4,7 +4,7 @@
 
 #include "include/OidcTokenRequest.h"
 #include "include/JwkPemRsaKey.h"
-#include "include/Rs256.h"
+#include "include/Ps256.h"
 #include "include/Jwt.h"
 #include <iostream>
 
@@ -48,10 +48,10 @@ int main() {
             std::cerr << "Not expected refresh token\n";
             return 1;
         }
-        Rs256 rs256{jwkobj.ToVerificationKey()};
+        Ps256 ps256{jwkobj.ToVerificationKey()};
         {
             Jwt jwtobj{jwt};
-            if (!rs256.Verify(jwtobj)) {
+            if (!ps256.Verify(jwtobj)) {
                 std::cerr << "Verify failed\n";
                 return 1;
             }
@@ -62,7 +62,7 @@ int main() {
             std::string signature{jwtobj.GetSignature()};
             signature[0] = signature.at(0) == 'A' ? 'B' : 'A';
             jwtobj.SetSignature(signature);
-            if (rs256.Verify(jwtobj)) {
+            if (ps256.Verify(jwtobj)) {
                 std::cerr << "Verify invalid succeeded\n";
                 return 1;
             }
@@ -106,10 +106,10 @@ int main() {
             std::cerr << "Expected refresh token\n";
             return 1;
         }
-        Rs256 rs256{jwkobj.ToVerificationKey()};
+        Ps256 ps256{jwkobj.ToVerificationKey()};
         {
             Jwt jwtobj{jwt};
-            if (!rs256.Verify(jwtobj)) {
+            if (!ps256.Verify(jwtobj)) {
                 std::cerr << "Verify failed\n";
                 return 1;
             }
@@ -120,7 +120,7 @@ int main() {
             std::string signature{jwtobj.GetSignature()};
             signature[0] = signature.at(0) == 'A' ? 'B' : 'A';
             jwtobj.SetSignature(signature);
-            if (rs256.Verify(jwtobj)) {
+            if (ps256.Verify(jwtobj)) {
                 std::cerr << "Verify invalid succeeded\n";
                 return 1;
             }

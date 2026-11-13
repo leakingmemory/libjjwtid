@@ -9,7 +9,7 @@
 #include <memory>
 #include <boost/uuid/uuid_generators.hpp> // for random_generator
 #include <boost/uuid/uuid_io.hpp> // for to_string
-#include "include/Rs256.h"
+#include "include/Ps256.h"
 
 OidcClientAssertion::OidcClientAssertion(const std::string &audienceUrl, const std::string &clientId, const std::string &jwk,
                                  const HelseidMultiTenantInfo &multiTenantInfo)
@@ -73,8 +73,8 @@ std::string OidcClientAssertion::ToString() const {
             }
             token.Body()->Add("authorization_details", arr);
         }
-        Rs256 rs256{signingKey};
-        rs256.Sign(token);
+        Ps256 ps256{signingKey};
+        ps256.Sign(token);
         jwt = token.ToString();
     }
     return jwt;
